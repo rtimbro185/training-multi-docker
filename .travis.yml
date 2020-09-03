@@ -1,0 +1,46 @@
+language: generic
+sudo: required
+
+# Specifies docker as a dependency
+services:
+  - docker
+
+# Build test versions of React projects
+# We only have tests for the react project, can add tests for server and worker
+before_install:
+  - docker build -t rtimbro185/training-multi-docker-test -f ./client/Dockerfile.dev ./client
+
+# Run project specific 
+# We only have tests for the react project, can add tests for server and worker
+script:
+  - docker run -e CI=true rtimbro185/training-multi-docker-test npm run test
+
+# Build prod versions of all projects
+after_success:
+  - docker build -t rtimbro185/training-multi-client ./client
+  - docker build -t rtimbro185/training-multi-nginx ./nginx
+  - docker build -t rtimbro185/training-multi-express-server ./express-server
+  - docker build -t rtimbro185/training-multi-worker ./worker
+
+# Log in to the docker CLI
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+# Takes the above images and pushes them to docker hub
+- docker push rtimbro185/training-multi-client
+- docker push rtimbro185/training-multi-nginx
+- docker push rtimbro185/training-multi-express-server
+- docker push rtimbro185/training-multi-worker
+
+#deploy:
+  #provider: elasticbeanstalk
+  #region: "us-east-1"
+  #app: "multi-docker"
+  #env: "MultiDocker-env"
+  #bucket_name: "elasticbeanstalk-us-east-1-464020980987"
+  #bucket_path: "mulit-docker"
+  #on:
+   # branch: master
+  #access_key_id: $AWS_ACCESS_KEY
+ # secret_access_key: $AWS_SECRET_KEY
+
+  #only_create_app_version: "false"
