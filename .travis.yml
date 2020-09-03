@@ -31,6 +31,7 @@ after_success:
 - docker push rtimbro185/training-multi-express-server
 - docker push rtimbro185/training-multi-worker
 
+#Deploy to elastic beanstalk
 #deploy:
   #provider: elasticbeanstalk
   #region: "us-east-1"
